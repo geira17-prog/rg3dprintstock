@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="description" content="RG3DPrint Stock v2">
+<link rel="manifest" href="manifest.json">
+<title>RG3DPrint Stock v2</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
+header{background:#111827;color:#fff;padding:14px 18px;position:sticky;top:0;z-index:20}.brand{display:flex;align-items:center;gap:12px}.logo{width:45px;height:45px;border-radius:10px;background:#fff;color:#111827;display:grid;place-items:center;font-weight:900}.brand b{font-size:20px}.brand small{display:block;opacity:.7}
+nav{display:flex;gap:6px;overflow:auto;padding:8px;background:#fff;position:sticky;top:74px;z-index:19;border-bottom:1px solid #ddd}nav button{border:0;padding:10px 13px;border-radius:9px;background:#eef2ff;font-weight:700;white-space:nowrap}nav button.active{background:#111827;color:#fff}
+main{max-width:1150px;margin:auto;padding:16px}.view{display:none}.view.active{display:block}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.card,.panel,form{background:#fff;padding:16px;border-radius:12px;margin-bottom:15px;box-shadow:0 1px 4px #0001}.card strong{display:block;font-size:23px;margin-top:4px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}input,select,textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}textarea{min-height:75px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button{cursor:pointer}.primary{background:#111827;color:#fff;border:0;padding:10px 14px;border-radius:8px;font-weight:700}.secondary{background:#e5e7eb;border:0;padding:10px 14px;border-radius:8px;font-weight:700}.danger{background:#fee2e2;color:#991b1b;border:0;padding:10px 14px;border-radius:8px;font-weight:700}
+.tablewrap{overflow:auto;background:#fff;border-radius:12px;box-shadow:0 1px 4px #0001}table{border-collapse:collapse;width:100%;min-width:780px}th,td{padding:9px;border-bottom:1px solid #e5e7eb;text-align:left}th{background:#f8fafc}.thumb{width:54px;height:54px;object-fit:cover;border-radius:7px}.muted{color:#64748b;font-size:12px}.hidden{display:none!important}
+#login{position:fixed;inset:0;background:#f3f4f6;display:flex;align-items:center;justify-content:center;padding:20px;z-index:100}.loginbox{background:#fff;max-width:420px;width:100%;padding:24px;border-radius:16px;box-shadow:0 5px 25px #0002}.loginbox h1{margin-top:0}.status{margin:10px 0;padding:9px;border-radius:8px;background:#f1f5f9}
+@media(max-width:700px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}main{padding:10px}.brand b{font-size:17px}}
+</style>
+</head>
+<body>
+<div id="login">
+ <div class="loginbox">
+  <div class="brand"><div class="logo">RG</div><div><b>RG3DPrint Stock</b><small>v2 • Supabase</small></div></div>
+  <h2>Entrar</h2>
+  <label>Email</label><input id="loginEmail" type="email" placeholder="email">
+  <label style="margin-top:10px">Palavra-passe</label><input id="loginPass" type="password" placeholder="palavra-passe">
+  <div class="actions"><button class="primary" id="btnLogin">Entrar</button><button class="secondary" id="btnReg">Criar conta</button></div>
+  <div id="loginMsg" class="status">Configure primeiro o Supabase em <b>config.js</b>.</div>
+ </div>
+</div>
+<header id="appHeader" class="hidden"><div class="brand"><div class="logo">RG</div><div><b>RG3DPrint Stock</b><small>Gestão de filamentos • v2</small></div></div></header>
+<nav id="nav" class="hidden">
+<button data-view="dashboard" class="active">📊 Stock</button><button data-view="compra">🛒 Compra</button><button data-view="saida">📤 Saída</button><button data-view="comprar">🛍️ Para comprar</button><button data-view="historico">📋 Histórico</button>
+<button id="btnLogout" class="secondary">Sair</button>
+</nav>
+<main id="app" class="hidden">
+<section id="dashboard" class="view active"><h2>Stock atual</h2>
+<div class="cards"><div class="card">Caixas<strong id="nCaixas">0</strong></div><div class="card">Filamentos<strong id="nTipos">0</strong></div><div class="card">Investido<strong id="nInvestido">0,00 €</strong></div><div class="card">Vendas<strong id="nVendas">0,00 €</strong></div></div>
+<div class="panel"><input id="searchStock" placeholder="🔎 Pesquisar filamento, marca, tipo ou cor..."></div>
+<div class="tablewrap"><table><thead><tr><th>Foto</th><th>Filamento</th><th>Marca</th><th>Tipo</th><th>Cor</th><th>Caixas</th><th>Valor stock</th></tr></thead><tbody id="stockBody"></tbody></table></div>
+</section>
+<section id="compra" class="view"><h2>Nova compra</h2>
+<form id="formCompra"><div class="grid">
+<div><label>Filamento</label><input id="cNome" list="sugCompra" placeholder="Escreve para procurar..." autocomplete="off"><datalist id="sugCompra"></datalist><div class="muted">Sugestões dos filamentos já registados.</div></div>
+<div><label>Marca</label><input id="cMarca"></div><div><label>Tipo</label><select id="cTipo"><option>PLA</option><option>PLA Silk</option><option>PETG</option><option>ABS</option><option>TPU</option><option>ASA</option><option>Outro</option></select></div>
+<div><label>Cor</label><input id="cCor"></div><div><label>Caixas</label><input id="cQtd" type="number" min="1" value="1"></div><div><label>Preço sem IVA / caixa</label><input id="cSem" type="number" step=".01" value="0"></div>
+<div><label>IVA (%)</label><input id="cIva" type="number" step=".01" value="23"></div><div><label>Preço com IVA / caixa</label><input id="cCom" readonly></div><div><label>N.º da factura</label><input id="cFatura"></div>
+<div><label>Data</label><input id="cData" type="date"></div><div><label>Fornecedor</label><input id="cFornecedor"></div><div><label>Foto</label><input id="cFoto" type="file" accept="image/*"></div>
+</div><div id="cFotoPrev"></div><div class="actions"><button class="primary">Guardar compra</button><button type="button" class="secondary" onclick="limparCompra()">Limpar</button></div></form>
+</section>
+<section id="saida" class="view"><h2>Saída</h2>
+<form id="formSaida"><div class="grid"><div><label>Filamento</label><select id="sFilamento"></select></div><div><label>Tipo de saída</label><select id="sTipo"><option>Consumo próprio</option><option>Venda</option><option>Oferta</option><option>Outro</option></select></div><div><label>Quantidade</label><input id="sQtd" type="number" min="1" value="1"></div><div id="vendaBox"><label>Preço de venda / caixa</label><input id="sVenda" type="number" step=".01" value="0"></div><div><label>Data</label><input id="sData" type="date"></div><div><label>Observações</label><input id="sObs"></div></div><div class="actions"><button class="primary">Registar saída</button></div></form>
+</section>
+<section id="comprar" class="view"><h2>Filamentos para comprar</h2>
+<form id="formParaComprar"><div class="grid"><div><label>Filamento</label><input id="pNome" list="sugComprar" placeholder="Escreve para procurar..." autocomplete="off"><datalist id="sugComprar"></datalist></div><div><label>Marca</label><input id="pMarca"></div><div><label>Tipo</label><select id="pTipo"><option>PLA</option><option>PLA Silk</option><option>PETG</option><option>ABS</option><option>TPU</option><option>ASA</option><option>Outro</option></select></div><div><label>Cor</label><input id="pCor"></div><div><label>Caixas</label><input id="pQtd" type="number" min="1" value="1"></div><div><label>Preço sem IVA / caixa</label><input id="pSem" type="number" step=".01" value="0"></div><div><label>IVA (%)</label><input id="pIva" type="number" step=".01" value="23"></div><div><label>Preço com IVA / caixa</label><input id="pCom" readonly></div><div><label>Fornecedor</label><input id="pFornecedor"></div><div><label>Foto</label><input id="pFoto" type="file" accept="image/*"></div><div><label>Prioridade</label><select id="pPrioridade"><option>Normal</option><option>Alta</option><option>Urgente</option></select></div></div><div id="pFotoPrev"></div><div class="actions"><button class="primary">Adicionar à lista</button></div></form>
+<div class="tablewrap"><table><thead><tr><th>Foto</th><th>Filamento</th><th>Tipo</th><th>Caixas</th><th>Sem IVA</th><th>Com IVA</th><th>Prioridade</th><th>Ações</th></tr></thead><tbody id="comprarBody"></tbody></table></div>
+</section>
+<section id="historico" class="view"><h2>Histórico</h2><div class="panel"><input id="searchHist" placeholder="🔎 Pesquisar no histórico..."></div><div class="tablewrap"><table><thead><tr><th>Data</th><th>Tipo</th><th>Filamento</th><th>Quantidade</th><th>Valor</th><th>Factura</th><th>Ações</th></tr></thead><tbody id="histBody"></tbody></table></div></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+let sb=null;
+const $=id=>document.getElementById(id), euro=n=>(Number(n)||0).toLocaleString('pt-PT',{style:'currency',currency:'EUR'}), today=()=>new Date().toISOString().slice(0,10);
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function msg(t){$('loginMsg').innerHTML=t}
+function init(){
+ if(!window.RG_SUPABASE_URL||!window.RG_SUPABASE_KEY){msg('Configure o ficheiro <b>config.js</b> com os dados do Supabase.');return}
+ sb=window.supabase.createClient(window.RG_SUPABASE_URL,window.RG_SUPABASE_KEY);
+ sb.auth.getSession().then(({data})=>data.session?showApp():null);
+}
+async function login(){try{const {error}=await sb.auth.signInWithPassword({email:$('loginEmail').value,password:$('loginPass').value});if(error)throw error;showApp()}catch(e){msg(esc(e.message))}}
+async function register(){try{const {error}=await sb.auth.signUp({email:$('loginEmail').value,password:$('loginPass').value});if(error)throw error;msg('Conta criada. Se o Supabase pedir confirmação de email, confirma-a e depois entra.')}catch(e){msg(esc(e.message))}}
+async function showApp(){$('login').classList.add('hidden');$('appHeader').classList.remove('hidden');$('nav').classList.remove('hidden');$('app').classList.remove('hidden');$('cData').value=today();$('sData').value=today();await render()}
+async function logout(){await sb.auth.signOut();location.reload()}
+async function rows(table){const {data,error}=await sb.from(table).select('*').order('created_at',{ascending:false});if(error)throw error;return data||[]}
+async function stock(){return rows('filamentos')}
+async function calcCompra(){ $('cCom').value=((+$('cSem').value||0)*(1+(+$('cIva').value||0)/100)).toFixed(2)}
+async function calcPara(){ $('pCom').value=((+$('pSem').value||0)*(1+(+$('pIva').value||0)/100)).toFixed(2)}
+async function updateSug(prefix,inputId,listId){
+ const all=await stock(),q=$(inputId).value.toLowerCase();
+ $(listId).innerHTML=all.filter(x=>(x.nome+' '+(x.marca||'')+' '+(x.tipo||'')+' '+(x.cor||'')).toLowerCase().includes(q)).slice(0,15).map(x=>`<option value="${esc(x.nome)}"></option>`).join('');
+ const x=all.find(x=>(x.nome||'').toLowerCase()===$(inputId).value.trim().toLowerCase());if(x){$(prefix+'Marca').value=x.marca||'';$(prefix+'Tipo').value=x.tipo||'PLA';$(prefix+'Cor').value=x.cor||'';if(prefix==='c'&&x.foto)$('cFotoPrev').innerHTML=`<img class="thumb" src="${esc(x.foto)}">`;if(prefix==='p'&&x.foto)$('pFotoPrev').innerHTML=`<img class="thumb" src="${esc(x.foto)}">`}
+}
+function readImage(input,cb){const f=input.files[0];if(!f)return cb('');const r=new FileReader();r.onload=e=>cb(e.target.result);r.readAsDataURL(f)}
+async function saveCompra(e){e.preventDefault();const nome=$('cNome').value.trim(),q=+$('cQtd').value||0,sem=+$('cSem').value||0,iva=+$('cIva').value||0;if(!nome||q<1)return alert('Indique o filamento e a quantidade.');readImage($('cFoto'),async foto=>{try{let {data:x,error}=await sb.from('filamentos').select('*').ilike('nome',nome).maybeSingle();if(error)throw error;const com=sem*(1+iva/100);if(x){const novo=x.caixas+q,med=((x.caixas*x.valor_medio)+(q*com))/novo;const up={caixas:novo,valor_medio:med,marca:$('cMarca').value,tipo:$('cTipo').value,cor:$('cCor').value};if(foto)up.foto=foto;let r=await sb.from('filamentos').update(up).eq('id',x.id);if(r.error)throw r.error}else{let r=await sb.from('filamentos').insert({nome,marca:$('cMarca').value,tipo:$('cTipo').value,cor:$('cCor').value,caixas:q,valor_medio:com,foto:foto||null}).select().single();if(r.error)throw r.error;x=r.data}
+let r=await sb.from('compras').insert({filamento_id:x.id,data_compra:$('cData').value,quantidade:q,preco_sem_iva:sem,iva,preco_com_iva:com,total_sem_iva:q*sem,total:q*com,fatura:$('cFatura').value,fornecedor:$('cFornecedor').value,foto:foto||x.foto||null});if(r.error)throw r.error;await render();limparCompra();alert('Compra registada.')}catch(err){alert(err.message)}})}
+function limparCompra(){$('formCompra').reset();$('cData').value=today();$('cIva').value=23;$('cFotoPrev').innerHTML='';calcCompra()}
+async function saveSaida(e){e.preventDefault();const id=$('sFilamento').value,q=+$('sQtd').value||0;const {data:x,error}=await sb.from('filamentos').select('*').eq('id',id).single();if(error||!x||q<1||q>x.caixas)return alert('Quantidade inválida.');const tipo=$('sTipo').value,venda=tipo==='Venda'?(+$('sVenda').value||0):0;let r=await sb.from('filamentos').update({caixas:x.caixas-q,valor_medio:(x.caixas-q)<=0?0:x.valor_medio}).eq('id',id);if(r.error)return alert(r.error.message);r=await sb.from('saidas').insert({filamento_id:id,data_saida:$('sData').value,quantidade:q,tipo,preco_venda:venda,total:venda*q,observacoes:$('sObs').value});if(r.error)return alert(r.error.message);await render();e.target.reset();$('sData').value=today();alert('Saída registada.')}
+async function savePara(e){e.preventDefault();const nome=$('pNome').value.trim();if(!nome)return alert('Indique o filamento.');readImage($('pFoto'),async foto=>{const r=await sb.from('filamentos_para_comprar').insert({nome,marca:$('pMarca').value,tipo:$('pTipo').value,cor:$('pCor').value,quantidade:+$('pQtd').value||1,preco_sem_iva:+$('pSem').value||0,iva:+$('pIva').value||23,fornecedor:$('pFornecedor').value,prioridade:$('pPrioridade').value,foto});if(r.error)return alert(r.error.message);await render();e.target.reset();$('pIva').value=23;calcPara()})}
+async function editCompra(id){const f=prompt('N.º da factura:');if(f===null)return;const r=await sb.from('compras').update({fatura:f}).eq('id',id);if(r.error)alert(r.error.message);else render()}
+async function editPara(id){const q=prompt('Quantidade:');if(q===null)return;const sem=prompt('Preço sem IVA:');if(sem===null)return;const r=await sb.from('filamentos_para_comprar').update({quantidade:+q,preco_sem_iva:+sem}).eq('id',id);if(r.error)alert(r.error.message);else render()}
+async function delPara(id){if(confirm('Apagar este item?')){const r=await sb.from('filamentos_para_comprar').delete().eq('id',id);if(r.error)alert(r.error.message);else render()}}
+async function render(){try{const s=await stock();$('nCaixas').textContent=s.reduce((a,x)=>a+x.caixas,0);$('nTipos').textContent=s.length;$('nInvestido').textContent=euro(s.reduce((a,x)=>a+x.caixas*x.valor_medio,0));const q=($('searchStock').value||'').toLowerCase();$('stockBody').innerHTML=s.filter(x=>(x.nome+' '+x.marca+' '+x.tipo+' '+x.cor).toLowerCase().includes(q)).map(x=>`<tr><td>${x.foto?`<img class="thumb" src="${esc(x.foto)}">`:'-'}</td><td>${esc(x.nome)}</td><td>${esc(x.marca)}</td><td>${esc(x.tipo)}</td><td>${esc(x.cor)}</td><td>${x.caixas}</td><td>${euro(x.caixas*x.valor_medio)}</td></tr>`).join('');$('sFilamento').innerHTML=s.filter(x=>x.caixas>0).map(x=>`<option value="${x.id}">${esc(x.nome)} — ${x.caixas} caixas</option>`).join('');
+const compras=await rows('compras');const saidas=await rows('saidas');const vendas=saidas.filter(x=>x.tipo==='Venda').reduce((a,x)=>a+x.total,0);$('nVendas').textContent=euro(vendas);const fs=Object.fromEntries(s.map(x=>[x.id,x]));
+const cp=await rows('filamentos_para_comprar');$('comprarBody').innerHTML=cp.map(x=>`<tr><td>${x.foto?`<img class="thumb" src="${esc(x.foto)}">`:'-'}</td><td>${esc(x.nome)}<br><small>${esc(x.marca||'')}</small></td><td>${esc(x.tipo)}</td><td>${x.quantidade}</td><td>${euro(x.preco_sem_iva)}</td><td>${euro(x.preco_sem_iva*(1+(x.iva||0)/100))}</td><td>${esc(x.prioridade)}</td><td><button class="secondary" onclick="editPara('${x.id}')">✏️ Editar</button> <button class="danger" onclick="delPara('${x.id}')">Apagar</button></td></tr>`).join('');
+const h=[...compras.map(x=>({...x,_tipo:'Compra',_data:x.data_compra,_q:x.quantidade,_total:x.total,_fat:x.fatura,_nome:fs[x.filamento_id]?.nome||'-'})),...saidas.map(x=>({...x,_tipo:'Saída - '+x.tipo,_data:x.data_saida,_q:x.quantidade,_total:x.total,_fat:'',_nome:fs[x.filamento_id]?.nome||'-'}))].sort((a,b)=>String(b._data).localeCompare(String(a._data)));const hq=($('searchHist').value||'').toLowerCase();$('histBody').innerHTML=h.filter(x=>(x._nome+' '+x._tipo+' '+x._fat+' '+x._data).toLowerCase().includes(hq)).map(x=>`<tr><td>${esc(x._data)}</td><td>${esc(x._tipo)}</td><td>${esc(x._nome)}</td><td>${x._q}</td><td>${euro(x._total)}</td><td>${esc(x._fat||'-')}</td><td>${x._tipo==='Compra'?`<button class="secondary" onclick="editCompra('${x.id}')">✏️ Editar</button>`:'-'}</td></tr>`).join('')}catch(e){console.error(e)}}
+$('btnLogin').onclick=login;$('btnReg').onclick=register;$('btnLogout').onclick=logout;$('formCompra').onsubmit=saveCompra;$('formSaida').onsubmit=saveSaida;$('formParaComprar').onsubmit=savePara;
+['cSem','cIva'].forEach(i=>$(i).addEventListener('input',calcCompra));['pSem','pIva'].forEach(i=>$(i).addEventListener('input',calcPara));$('cNome').oninput=()=>updateSug('c','cNome','sugCompra');$('pNome').oninput=()=>updateSug('p','pNome','sugComprar');$('searchStock').oninput=render;$('searchHist').oninput=render;$('sTipo').onchange=()=>$('vendaBox').classList.toggle('hidden',$('sTipo').value!=='Venda');
+document.querySelectorAll('#nav button[data-view]').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(b.dataset.view).classList.add('active');render()});
+init();
+</script>
+</body></html>
