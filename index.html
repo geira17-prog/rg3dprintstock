@@ -147,7 +147,10 @@ async function editCompra(id){
 
   const compra = r.data;
 
-  // Procurar o filamento associado à compra
+  // =========================
+  // OBTER FILAMENTO
+  // =========================
+
   const f = await sb
     .from('filamentos')
     .select('*')
@@ -172,6 +175,11 @@ async function editCompra(id){
 
   if(nome === null) return;
 
+  if(!nome.trim()){
+    alert('O nome do filamento não pode ficar vazio.');
+    return;
+  }
+
   const marca = prompt(
     'Marca:',
     filamento.marca || ''
@@ -181,7 +189,7 @@ async function editCompra(id){
 
   const tipo = prompt(
     'Tipo (PLA, PLA Silk, PETG, ABS, TPU...):',
-    filamento.tipo || ''
+    filamento.tipo || 'PLA'
   );
 
   if(tipo === null) return;
@@ -213,7 +221,7 @@ async function editCompra(id){
 
   const iva = prompt(
     'IVA (%):',
-    compra.iva ?? 23
+    compra.iva
   );
 
   if(iva === null) return;
@@ -226,15 +234,15 @@ async function editCompra(id){
   if(fatura === null) return;
 
   // =========================
-  // CÁLCULOS
+  // VALIDAR
   // =========================
 
   const q = Number(quantidade);
   const sem = Number(precoSem);
   const taxa = Number(iva);
 
-  if(!Number.isFinite(q) || q <= 0){
-    alert('A quantidade não é válida.');
+  if(!Number.isInteger(q) || q <= 0){
+    alert('A quantidade tem de ser um número inteiro maior que 0.');
     return;
   }
 
@@ -248,11 +256,18 @@ async function editCompra(id){
     return;
   }
 
+  // =========================
+  // CALCULAR PREÇOS
+  // =========================
+
   const precoCom = sem * (1 + taxa / 100);
+
+  const totalSemIva = sem * q;
+
   const total = precoCom * q;
 
   // =========================
-  // ATUALIZAR FILAMENTO
+  // ALTERAR FILAMENTO
   // =========================
 
   const rf = await sb
@@ -266,12 +281,24 @@ async function editCompra(id){
     .eq('id', compra.filamento_id);
 
   if(rf.error){
-    alert('Erro ao alterar o filamento:\n' + rf.error.message);
+
+    if(rf.error.code === '23505'){
+      alert(
+        'Já existe um filamento com esse nome.\n\n' +
+        'Escolha outro nome.'
+      );
+    }else{
+      alert(
+        'Erro ao alterar o filamento:\n' +
+        rf.error.message
+      );
+    }
+
     return;
   }
 
   // =========================
-  // ATUALIZAR COMPRA
+  // ALTERAR COMPRA
   // =========================
 
   const rc = await sb
@@ -281,24 +308,30 @@ async function editCompra(id){
       preco_sem_iva: sem,
       iva: taxa,
       preco_com_iva: precoCom,
+      total_sem_iva: totalSemIva,
       total: total,
       fatura: fatura.trim()
     })
     .eq('id', id);
 
   if(rc.error){
-    alert('Erro ao alterar a compra:\n' + rc.error.message);
+    alert(
+      'Erro ao alterar a compra:\n' +
+      rc.error.message
+    );
     return;
   }
 
-  // Recalcular stock
+  // =========================
+  // RECALCULAR STOCK
+  // =========================
+
   await recalcularFilamento(compra.filamento_id);
 
   await render();
 
   alert('Compra e filamento alterados com sucesso.');
 }
-
 async function delCompra(id){
 
   const {data:compra,error}=await sb
