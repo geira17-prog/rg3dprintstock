@@ -9,6 +9,21 @@
 <link rel="icon" href="favicon.png">
 <title>RG3DPrint Stock v2</title>
 <style>
+.sem-stock{
+  background:#fff3cd !important;
+}
+
+.sem-stock td{
+  color:#856404;
+}
+
+.sem-stock td:nth-last-child(2){
+  font-weight:bold;
+}
+
+.sem-stock td:nth-last-child(2)::before{
+  content:"⚠️ ";
+}
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
 header{background:#111827;color:#fff;padding:14px 18px;position:sticky;top:0;z-index:20}.brand{display:flex;align-items:center;gap:12px}.logo{width:45px;height:45px;border-radius:10px;background:#fff;color:#111827;display:grid;place-items:center;font-weight:900}.brand b{font-size:20px}.brand small{display:block;opacity:.7}
 nav{display:flex;gap:6px;overflow:auto;padding:8px;background:#fff;position:sticky;top:74px;z-index:19;border-bottom:1px solid #ddd}nav button{border:0;padding:10px 13px;border-radius:9px;background:#eef2ff;font-weight:700;white-space:nowrap}nav button.active{background:#111827;color:#fff}
@@ -417,7 +432,7 @@ async function delCompra(id){
   alert('Compra apagada e stock corrigido.');
 }async function editPara(id){const q=prompt('Quantidade:');if(q===null)return;const sem=prompt('Preço sem IVA:');if(sem===null)return;const r=await sb.from('filamentos_para_comprar').update({quantidade:+q,preco_sem_iva:+sem}).eq('id',id);if(r.error)alert(r.error.message);else render()}
 async function delPara(id){if(confirm('Apagar este item?')){const r=await sb.from('filamentos_para_comprar').delete().eq('id',id);if(r.error)alert(r.error.message);else render()}}
-async function render(){try{const s=await stock();$('nCaixas').textContent=s.reduce((a,x)=>a+x.caixas,0);$('nTipos').textContent=s.length;$('nInvestido').textContent=euro(s.reduce((a,x)=>a+x.caixas*x.valor_medio,0));const q=($('searchStock').value||'').toLowerCase();$('stockBody').innerHTML=s.filter(x=>(x.nome+' '+x.marca+' '+x.tipo+' '+x.cor).toLowerCase().includes(q)).map(x=>`<tr><td>${x.foto?`<img class="thumb" src="${esc(x.foto)}">`:'-'}</td><td>${esc(x.nome)}</td><td>${esc(x.marca)}</td><td>${esc(x.tipo)}</td><td>${esc(x.cor)}</td><td>${x.caixas}</td><td>${euro(x.caixas*x.valor_medio)}</td></tr>`).join('');$('sFilamento').innerHTML=s.filter(x=>x.caixas>0).map(x=>`<option value="${x.id}">${esc(x.nome)} — ${x.caixas} caixas</option>`).join('');
+async function render(){try{const s=await stock();const semStock=s.filter(x=>x.caixas===0);$('nCaixas').textContent=s.reduce((a,x)=>a+x.caixas,0);$('nTipos').textContent=s.length;;$('nInvestido').textContent=euro(s.reduce((a,x)=>a+x.caixas*x.valor_medio,0));const q=($('searchStock').value||'').toLowerCase();$('stockBody').innerHTML=s.filter(x=>(x.nome+' '+x.marca+' '+x.tipo+' '+x.cor).toLowerCase().includes(q)).map(x=>`<tr class="${x.caixas===0?'sem-stock':''}"><td>${x.foto?`<img class="thumb" src="${esc(x.foto)}">`:'-'}</td><td>${esc(x.nome)}</td><td>${esc(x.marca)}</td><td>${esc(x.tipo)}</td><td>${esc(x.cor)}</td><td>${x.caixas}</td><td>${euro(x.caixas*x.valor_medio)}</td></tr>`).join('');$('sFilamento').innerHTML=s.filter(x=>x.caixas>0).map(x=>`<option value="${x.id}">${esc(x.nome)} — ${x.caixas} caixas</option>`).join('');
 const compras=await rows('compras');const saidas=await rows('saidas');const vendas=saidas.filter(x=>x.tipo==='Venda').reduce((a,x)=>a+x.total,0);$('nVendas').textContent=euro(vendas);const fs=Object.fromEntries(s.map(x=>[x.id,x]));
 const cp=await rows('filamentos_para_comprar');$('comprarBody').innerHTML=cp.map(x=>`<tr><td>${x.foto?`<img class="thumb" src="${esc(x.foto)}">`:'-'}</td><td>${esc(x.nome)}<br><small>${esc(x.marca||'')}</small></td><td>${esc(x.tipo)}</td><td>${x.quantidade}</td><td>${euro(x.preco_sem_iva)}</td><td>${euro(x.preco_sem_iva*(1+(x.iva||0)/100))}</td><td>${esc(x.prioridade)}</td><td><button class="secondary" onclick="editPara('${x.id}')">✏️ Editar</button> <button class="danger" onclick="delPara('${x.id}')">Apagar</button></td></tr>`).join('');
 const h=[...compras.map(x=>({...x,_tipo:'Compra',_data:x.data_compra,_q:x.quantidade,_total:x.total,_fat:x.fatura,_nome:fs[x.filamento_id]?.nome||'-'})),...saidas.map(x=>({...x,_tipo:'Saída - '+x.tipo,_data:x.data_saida,_q:x.quantidade,_total:x.total,_fat:'',_nome:fs[x.filamento_id]?.nome||'-'}))].sort((a,b)=>String(b._data).localeCompare(String(a._data)));
