@@ -134,153 +134,170 @@ async function recalcularFilamento(id){
 
 async function editCompra(id){
 
-  const {data:compra,error}=await sb
+  const r = await sb
     .from('compras')
     .select('*')
-    .eq('id',id)
+    .eq('id', id)
     .single();
-
-  if(error||!compra){
-    alert('Não foi possível encontrar a compra.');
-    return;
-  }
-
-  const fatura=prompt(
-    'N.º da factura:',
-    compra.fatura||''
-  );
-
-  if(fatura===null)return;
-
-  const quantidade=prompt(
-    'Quantidade de caixas:',
-    compra.quantidade
-  );
-
-  if(quantidade===null)return;
-
-  const q=parseInt(quantidade);
-
-  if(!Number.isInteger(q)||q<1){
-    alert('A quantidade tem de ser um número inteiro maior que 0.');
-    return;
-  }
-
-  const sem=prompt(
-    'Preço sem IVA / caixa:',
-    Number(compra.preco_sem_iva||0).toFixed(2)
-  );
-
-  if(sem===null)return;
-
-  const precoSem=parseFloat(sem);
-
-  if(isNaN(precoSem)||precoSem<0){
-    alert('Preço sem IVA inválido.');
-    return;
-  }
-
-  const ivaTxt=prompt(
-    'IVA (%):',
-    Number(compra.iva||0)
-  );
-
-  if(ivaTxt===null)return;
-
-  const iva=parseFloat(ivaTxt);
-
-  if(isNaN(iva)||iva<0){
-    alert('IVA inválido.');
-    return;
-  }
-
-  const data=prompt(
-    'Data da compra (AAAA-MM-DD):',
-    compra.data_compra||''
-  );
-
-  if(data===null)return;
-
-  const fornecedor=prompt(
-    'Fornecedor:',
-    compra.fornecedor||''
-  );
-
-  if(fornecedor===null)return;
-
-  const {data:saidas,error:erroSaidas}=await sb
-    .from('saidas')
-    .select('*')
-    .eq('filamento_id',compra.filamento_id);
-
-  if(erroSaidas){
-    alert(erroSaidas.message);
-    return;
-  }
-
-  const {data:compras,error:erroCompras}=await sb
-    .from('compras')
-    .select('*')
-    .eq('filamento_id',compra.filamento_id)
-    .neq('id',id);
-
-  if(erroCompras){
-    alert(erroCompras.message);
-    return;
-  }
-
-  const totalOut=(
-    saidas||[]
-  ).reduce(
-    (a,x)=>a+(Number(x.quantidade)||0),
-    0
-  );
-
-  const outrasCompras=(
-    compras||[]
-  ).reduce(
-    (a,x)=>a+(Number(x.quantidade)||0),
-    0
-  );
-
-  if(outrasCompras+q<totalOut){
-    alert(
-      'Não é possível guardar esta alteração porque a quantidade de compras ficaria inferior às saídas já registadas.'
-    );
-    return;
-  }
-
-  const com=precoSem*(1+iva/100);
-  const totalSem=q*precoSem;
-  const total=q*com;
-
-  const r=await sb
-    .from('compras')
-    .update({
-      quantidade:q,
-      preco_sem_iva:precoSem,
-      iva:iva,
-      preco_com_iva:com,
-      total_sem_iva:totalSem,
-      total:total,
-      fatura:fatura,
-      data_compra:data,
-      fornecedor:fornecedor
-    })
-    .eq('id',id);
 
   if(r.error){
     alert(r.error.message);
     return;
   }
 
+  const compra = r.data;
+
+  // Procurar o filamento associado à compra
+  const f = await sb
+    .from('filamentos')
+    .select('*')
+    .eq('id', compra.filamento_id)
+    .single();
+
+  if(f.error){
+    alert(f.error.message);
+    return;
+  }
+
+  const filamento = f.data;
+
+  // =========================
+  // DADOS DO FILAMENTO
+  // =========================
+
+  const nome = prompt(
+    'Nome do filamento:',
+    filamento.nome || ''
+  );
+
+  if(nome === null) return;
+
+  const marca = prompt(
+    'Marca:',
+    filamento.marca || ''
+  );
+
+  if(marca === null) return;
+
+  const tipo = prompt(
+    'Tipo (PLA, PLA Silk, PETG, ABS, TPU...):',
+    filamento.tipo || ''
+  );
+
+  if(tipo === null) return;
+
+  const cor = prompt(
+    'Cor:',
+    filamento.cor || ''
+  );
+
+  if(cor === null) return;
+
+  // =========================
+  // DADOS DA COMPRA
+  // =========================
+
+  const quantidade = prompt(
+    'Quantidade de caixas:',
+    compra.quantidade
+  );
+
+  if(quantidade === null) return;
+
+  const precoSem = prompt(
+    'Preço sem IVA (€):',
+    compra.preco_sem_iva
+  );
+
+  if(precoSem === null) return;
+
+  const iva = prompt(
+    'IVA (%):',
+    compra.iva ?? 23
+  );
+
+  if(iva === null) return;
+
+  const fatura = prompt(
+    'Número da factura:',
+    compra.fatura || ''
+  );
+
+  if(fatura === null) return;
+
+  // =========================
+  // CÁLCULOS
+  // =========================
+
+  const q = Number(quantidade);
+  const sem = Number(precoSem);
+  const taxa = Number(iva);
+
+  if(!Number.isFinite(q) || q <= 0){
+    alert('A quantidade não é válida.');
+    return;
+  }
+
+  if(!Number.isFinite(sem) || sem < 0){
+    alert('O preço sem IVA não é válido.');
+    return;
+  }
+
+  if(!Number.isFinite(taxa) || taxa < 0){
+    alert('O IVA não é válido.');
+    return;
+  }
+
+  const precoCom = sem * (1 + taxa / 100);
+  const total = precoCom * q;
+
+  // =========================
+  // ATUALIZAR FILAMENTO
+  // =========================
+
+  const rf = await sb
+    .from('filamentos')
+    .update({
+      nome: nome.trim(),
+      marca: marca.trim(),
+      tipo: tipo.trim(),
+      cor: cor.trim()
+    })
+    .eq('id', compra.filamento_id);
+
+  if(rf.error){
+    alert('Erro ao alterar o filamento:\n' + rf.error.message);
+    return;
+  }
+
+  // =========================
+  // ATUALIZAR COMPRA
+  // =========================
+
+  const rc = await sb
+    .from('compras')
+    .update({
+      quantidade: q,
+      preco_sem_iva: sem,
+      iva: taxa,
+      preco_com_iva: precoCom,
+      total: total,
+      fatura: fatura.trim()
+    })
+    .eq('id', id);
+
+  if(rc.error){
+    alert('Erro ao alterar a compra:\n' + rc.error.message);
+    return;
+  }
+
+  // Recalcular stock
   await recalcularFilamento(compra.filamento_id);
 
   await render();
 
-  alert('Compra alterada com sucesso.');
+  alert('Compra e filamento alterados com sucesso.');
 }
-
 
 async function delCompra(id){
 
