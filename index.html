@@ -49,7 +49,7 @@ main{max-width:1150px;margin:auto;padding:16px}.view{display:none}.view.active{d
   <label>Email</label><input id="loginEmail" type="email" placeholder="email">
   <label style="margin-top:10px">Palavra-passe</label><input id="loginPass" type="password" placeholder="palavra-passe">
   <div class="actions"><button class="primary" id="btnLogin">Entrar</button><button class="secondary" id="btnReg">Criar conta</button></div>
-  <div id="loginMsg" class="status">APP by Ricardo Gingeira</b>.</div>
+  <div id="loginMsg" class="status">APP by Ricardo Gingeira.</div>
  </div>
 </div>
 <header id="appHeader" class="hidden"><div class="brand"><img class="appLogo" src="logo-rg3dprint.webp" alt="RG3DPrint"><div><b>RG3DPrint Stock</b><small>Gestão de filamentos • v2</small></div></div></header>
@@ -60,11 +60,12 @@ main{max-width:1150px;margin:auto;padding:16px}.view{display:none}.view.active{d
 <main id="app" class="hidden">
 <section id="dashboard" class="view active"><h2>Stock atual</h2>
 <div class="cards"><div class="card">Caixas<strong id="nCaixas">0</strong></div><div class="card">Filamentos<strong id="nTipos">0</strong></div><div class="card">Investido<strong id="nInvestido">0,00 €</strong></div><div class="card">Vendas<strong id="nVendas">0,00 €</strong></div></div>
-<div class="panel"><input id="searchStock" placeholder="🔎 Pesquisar filamento, marca, tipo ou cor..."></div>
-<div class="tablewrap"><table><thead><tr><th>Foto</th><th>Filamento</th><th>Marca</th><th>Tipo</th><th>Cor</th><th>Caixas</th><th>Valor stock</th></tr></thead><tbody id="stockBody"></tbody></table></div>
+<div class="panel"><input id="searchStock" placeholder="🔎 Pesquisar filamento, marca, tipo, cor ou código de barras..."></div>
+<div class="tablewrap"><table><thead><tr><th>Foto</th><th>Código Barras</th><th>Filamento</th><th>Marca</th><th>Tipo</th><th>Cor</th><th>Caixas</th><th>Valor stock</th></tr></thead><tbody id="stockBody"></tbody></table></div>
 </section>
 <section id="compra" class="view"><h2>Nova compra</h2>
 <form id="formCompra"><div class="grid">
+<div><label>Código de Barras</label><input id="cBarcode" placeholder="Pica com a pistola aqui..."></div>
 <div><label>Filamento</label><input id="cNome" list="sugCompra" placeholder="Escreve para procurar..." autocomplete="off"><datalist id="sugCompra"></datalist><div class="muted">Sugestões dos filamentos já registados.</div></div>
 <div><label>Marca</label><input id="cMarca"></div><div><label>Tipo</label><select id="cTipo"><option>PLA</option><option>PLA Silk</option><option>PETG</option><option>ABS</option><option>TPU</option><option>ASA</option><option>Outro</option></select></div>
 <div><label>Cor</label><input id="cCor"></div><div><label>Caixas</label><input id="cQtd" type="number" min="1" value="1"></div><div><label>Preço sem IVA / caixa</label><input id="cSem" type="number" step=".01" value="0"></div>
@@ -73,7 +74,9 @@ main{max-width:1150px;margin:auto;padding:16px}.view{display:none}.view.active{d
 </div><div id="cFotoPrev"></div><div class="actions"><button class="primary">Guardar compra</button><button type="button" class="secondary" onclick="limparCompra()">Limpar</button></div></form>
 </section>
 <section id="saida" class="view"><h2>Saída</h2>
-<form id="formSaida"><div class="grid"><div><label>Filamento</label><select id="sFilamento"></select></div><div><label>Tipo de saída</label><select id="sTipo"><option>Consumo próprio</option><option>Venda</option><option>Oferta</option><option>Outro</option></select></div><div><label>Quantidade</label><input id="sQtd" type="number" min="1" value="1"></div><div id="vendaBox"><label>Preço de venda / caixa</label><input id="sVenda" type="number" step=".01" value="0"></div><div><label>Data</label><input id="sData" type="date"></div><div><label>Observações</label><input id="sObs"></div></div><div class="actions"><button class="primary">Registar saída</button></div></form>
+<form id="formSaida"><div class="grid">
+<div><label>Ler Código de Barras</label><input id="sBarcode" placeholder="Pica com a pistola aqui..."></div>
+<div><label>Filamento</label><select id="sFilamento"></select></div><div><label>Tipo de saída</label><select id="sTipo"><option>Consumo próprio</option><option>Venda</option><option>Oferta</option><option>Outro</option></select></div><div><label>Quantidade</label><input id="sQtd" type="number" min="1" value="1"></div><div id="vendaBox"><label>Preço de venda / caixa</label><input id="sVenda" type="number" step=".01" value="0"></div><div><label>Data</label><input id="sData" type="date"></div><div><label>Observações</label><input id="sObs"></div></div><div class="actions"><button class="primary">Registar saída</button></div></form>
 </section>
 <section id="comprar" class="view"><h2>Filamentos para comprar</h2>
 <form id="formParaComprar"><div class="grid"><div><label>Filamento</label><input id="pNome" list="sugComprar" placeholder="Escreve para procurar..." autocomplete="off"><datalist id="sugComprar"></datalist></div><div><label>Marca</label><input id="pMarca"></div><div><label>Tipo</label><select id="pTipo"><option>PLA</option><option>PLA Silk</option><option>PETG</option><option>ABS</option><option>TPU</option><option>ASA</option><option>Outro</option></select></div><div><label>Cor</label><input id="pCor"></div><div><label>Caixas</label><input id="pQtd" type="number" min="1" value="1"></div><div><label>Preço sem IVA / caixa</label><input id="pSem" type="number" step=".01" value="0"></div><div><label>IVA (%)</label><input id="pIva" type="number" step=".01" value="23"></div><div><label>Preço com IVA / caixa</label><input id="pCom" readonly></div><div><label>Fornecedor</label><input id="pFornecedor"></div><div><label>Foto</label><input id="pFoto" type="file" accept="image/*"></div><div><label>Prioridade</label><select id="pPrioridade"><option>Normal</option><option>Alta</option><option>Urgente</option></select></div></div><div id="pFotoPrev"></div><div class="actions"><button class="primary">Adicionar à lista</button></div></form>
@@ -101,365 +104,204 @@ async function rows(table){const {data,error}=await sb.from(table).select('*').o
 async function stock(){return rows('filamentos')}
 async function calcCompra(){ $('cCom').value=((+$('cSem').value||0)*(1+(+$('cIva').value||0)/100)).toFixed(2)}
 async function calcPara(){ $('pCom').value=((+$('pSem').value||0)*(1+(+$('pIva').value||0)/100)).toFixed(2)}
+
 async function updateSug(prefix,inputId,listId){
  const all=await stock(),q=$(inputId).value.toLowerCase();
  $(listId).innerHTML=all.filter(x=>(x.nome+' '+(x.marca||'')+' '+(x.tipo||'')+' '+(x.cor||'')).toLowerCase().includes(q)).slice(0,15).map(x=>`<option value="${esc(x.nome)}"></option>`).join('');
- const x=all.find(x=>(x.nome||'').toLowerCase()===$(inputId).value.trim().toLowerCase());if(x){$(prefix+'Marca').value=x.marca||'';$(prefix+'Tipo').value=x.tipo||'PLA';$(prefix+'Cor').value=x.cor||'';if(prefix==='c'&&x.foto)$('cFotoPrev').innerHTML=`<img class="thumb" src="${esc(x.foto)}">`;if(prefix==='p'&&x.foto)$('pFotoPrev').innerHTML=`<img class="thumb" src="${esc(x.foto)}">`}
-}
-function readImage(input,cb){const f=input.files[0];if(!f)return cb('');const r=new FileReader();r.onload=e=>cb(e.target.result);r.readAsDataURL(f)}
-async function saveCompra(e){e.preventDefault();const nome=$('cNome').value.trim(),q=+$('cQtd').value||0,sem=+$('cSem').value||0,iva=+$('cIva').value||0;if(!nome||q<1)return alert('Indique o filamento e a quantidade.');readImage($('cFoto'),async foto=>{try{let {data:x,error}=await sb.from('filamentos').select('*').ilike('nome',nome).maybeSingle();if(error)throw error;const com=sem*(1+iva/100);if(x){const novo=x.caixas+q,med=((x.caixas*x.valor_medio)+(q*com))/novo;const up={caixas:novo,valor_medio:med,marca:$('cMarca').value,tipo:$('cTipo').value,cor:$('cCor').value};if(foto)up.foto=foto;let r=await sb.from('filamentos').update(up).eq('id',x.id);if(r.error)throw r.error}else{let r=await sb.from('filamentos').insert({nome,marca:$('cMarca').value,tipo:$('cTipo').value,cor:$('cCor').value,caixas:q,valor_medio:com,foto:foto||null}).select().single();if(r.error)throw r.error;x=r.data}
-let r=await sb.from('compras').insert({filamento_id:x.id,data_compra:$('cData').value,quantidade:q,preco_sem_iva:sem,iva,preco_com_iva:com,total_sem_iva:q*sem,total:q*com,fatura:$('cFatura').value,fornecedor:$('cFornecedor').value,foto:foto||x.foto||null});if(r.error)throw r.error;await render();limparCompra();alert('Compra registada.')}catch(err){alert(err.message)}})}
-function limparCompra(){$('formCompra').reset();$('cData').value=today();$('cIva').value=23;$('cFotoPrev').innerHTML='';calcCompra()}
-async function saveSaida(e){e.preventDefault();const id=$('sFilamento').value,q=+$('sQtd').value||0;const {data:x,error}=await sb.from('filamentos').select('*').eq('id',id).single();if(error||!x||q<1||q>x.caixas)return alert('Quantidade inválida.');const tipo=$('sTipo').value,venda=tipo==='Venda'?(+$('sVenda').value||0):0;let r=await sb.from('filamentos').update({caixas:x.caixas-q,valor_medio:(x.caixas-q)<=0?0:x.valor_medio}).eq('id',id);if(r.error)return alert(r.error.message);r=await sb.from('saidas').insert({filamento_id:id,data_saida:$('sData').value,quantidade:q,tipo,preco_venda:venda,total:venda*q,observacoes:$('sObs').value});if(r.error)return alert(r.error.message);await render();e.target.reset();$('sData').value=today();alert('Saída registada.')}
-async function savePara(e){e.preventDefault();const nome=$('pNome').value.trim();if(!nome)return alert('Indique o filamento.');readImage($('pFoto'),async foto=>{const r=await sb.from('filamentos_para_comprar').insert({nome,marca:$('pMarca').value,tipo:$('pTipo').value,cor:$('pCor').value,quantidade:+$('pQtd').value||1,preco_sem_iva:+$('pSem').value||0,iva:+$('pIva').value||23,fornecedor:$('pFornecedor').value,prioridade:$('pPrioridade').value,foto});if(r.error)return alert(r.error.message);await render();e.target.reset();$('pIva').value=23;calcPara()})}
-async function recalcularFilamento(id){
-  const compras=await rows('compras');
-  const saidas=await rows('saidas');
-
-  const cp=compras.filter(x=>x.filamento_id===id);
-  const sd=saidas.filter(x=>x.filamento_id===id);
-
-  const totalComprado=cp.reduce((a,x)=>a+(Number(x.quantidade)||0),0);
-  const totalSaido=sd.reduce((a,x)=>a+(Number(x.quantidade)||0),0);
-
-  const caixas=Math.max(0,totalComprado-totalSaido);
-
-  let valorMedio=0;
-
-  if(totalComprado>0){
-    const totalInvestido=cp.reduce(
-      (a,x)=>a+(Number(x.total)||0),
-      0
-    );
-
-    valorMedio=totalInvestido/totalComprado;
+ const x=all.find(x=>(x.nome||'').toLowerCase()===$(inputId).value.trim().toLowerCase());
+ if(x){
+  $(prefix+'Marca').value=x.marca||'';
+  $(prefix+'Tipo').value=x.tipo||'PLA';
+  $(prefix+'Cor').value=x.cor||'';
+  if(prefix==='c'){
+   if(x.codigo_barras)$('cBarcode').value=x.codigo_barras;
+   if(x.foto)$('cFotoPrev').innerHTML=`<img class="thumb" src="${esc(x.foto)}">`;
   }
-
-  const r=await sb
-    .from('filamentos')
-    .update({
-      caixas:caixas,
-      valor_medio:valorMedio
-    })
-    .eq('id',id);
-
-  if(r.error)throw r.error;
+  if(prefix==='p'&&x.foto)$('pFotoPrev').innerHTML=`<img class="thumb" src="${esc(x.foto)}">`;
+ }
 }
 
+// Preencher através do Código de Barras na Compra
+async function checkBarcodeCompra(){
+ const code=$('cBarcode').value.trim();
+ if(!code)return;
+ const all=await stock();
+ const x=all.find(item=>item.codigo_barras===code);
+ if(x){
+  $('cNome').value=x.nome||'';
+  $('cMarca').value=x.marca||'';
+  $('cTipo').value=x.tipo||'PLA';
+  $('cCor').value=x.cor||'';
+  if(x.foto)$('cFotoPrev').innerHTML=`<img class="thumb" src="${esc(x.foto)}">`;
+ }
+}
+
+// Preencher através do Código de Barras na Saída
+async function checkBarcodeSaida(){
+ const code=$('sBarcode').value.trim();
+ if(!code)return;
+ const all=await stock();
+ const x=all.find(item=>item.codigo_barras===code);
+ if(x){
+  $('sFilamento').value=x.id;
+  $('sBarcode').value=''; // limpa para a próxima leitura
+ }else{
+  alert('Código de barras não encontrado no stock!');
+ }
+}
+
+function readImage(input,cb){const f=input.files[0];if(!f)return cb('');const r=new FileReader();r.onload=e=>cb(e.target.result);r.readAsDataURL(f)}
+
+async function saveCompra(e){
+ e.preventDefault();
+ const nome=$('cNome').value.trim(),q=+$('cQtd').value||0,sem=+$('cSem').value||0,iva=+$('cIva').value||0,barcode=$('cBarcode').value.trim();
+ if(!nome||q<1)return alert('Indique o filamento e a quantidade.');
+ readImage($('cFoto'),async foto=>{try{let {data:x,error}=await sb.from('filamentos').select('*').ilike('nome',nome).maybeSingle();if(error)throw error;const com=sem*(1+iva/100);if(x){const novo=x.caixas+q,med=((x.caixas*x.valor_medio)+(q*com))/novo;const up={caixas:novo,valor_medio:med,marca:$('cMarca').value,tipo:$('cTipo').value,cor:$('cCor').value,codigo_barras:barcode||x.codigo_barras};if(foto)up.foto=foto;let r=await sb.from('filamentos').update(up).eq('id',x.id);if(r.error)throw r.error}else{let r=await sb.from('filamentos').insert({nome,marca:$('cMarca').value,tipo:$('cTipo').value,cor:$('cCor').value,caixas:q,valor_medio:com,codigo_barras:barcode||null,foto:foto||null}).select().single();if(r.error)throw r.error;x=r.data}
+let r=await sb.from('compras').insert({filamento_id:x.id,data_compra:$('cData').value,quantidade:q,preco_sem_iva:sem,iva,preco_com_iva:com,total_sem_iva:q*sem,total:q*com,fatura:$('cFatura').value,fornecedor:$('cFornecedor').value,foto:foto||x.foto||null});if(r.error)throw r.error;await render();limparCompra();alert('Compra registada.')}catch(err){alert(err.message)}})}
+
+function limparCompra(){$('formCompra').reset();$('cData').value=today();$('cIva').value=23;$('cFotoPrev').innerHTML='';calcCompra()}
+
+async function saveSaida(e){e.preventDefault();const id=$('sFilamento').value,q=+$('sQtd').value||0;const {data:x,error}=await sb.from('filamentos').select('*').eq('id',id).single();if(error||!x||q<1||q>x.caixas)return alert('Quantidade inválida.');const tipo=$('sTipo').value,venda=tipo==='Venda'?(+$('sVenda').value||0):0;let r=await sb.from('filamentos').update({caixas:x.caixas-q,valor_medio:(x.caixas-q)<=0?0:x.valor_medio}).eq('id',id);if(r.error)return alert(r.error.message);r=await sb.from('saidas').insert({filamento_id:id,data_saida:$('sData').value,quantidade:q,tipo,preco_venda:venda,total:venda*q,observacoes:$('sObs').value});if(r.error)return alert(r.error.message);await render();e.target.reset();$('sData').value=today();alert('Saída registada.')}
+
+async function savePara(e){e.preventDefault();const nome=$('pNome').value.trim();if(!nome)return alert('Indique o filamento.');readImage($('pFoto'),async foto=>{const r=await sb.from('filamentos_para_comprar').insert({nome,marca:$('pMarca').value,tipo:$('pTipo').value,cor:$('pCor').value,quantidade:+$('pQtd').value||1,preco_sem_iva:+$('pSem').value||0,iva:+$('pIva').value||23,fornecedor:$('pFornecedor').value,prioridade:$('pPrioridade').value,foto});if(r.error)return alert(r.error.message);await render();e.target.reset();$('pIva').value=23;calcPara()})}
+
+async function recalcularFilamento(id){
+ const compras=await rows('compras');
+ const saidas=await rows('saidas');
+ const cp=compras.filter(x=>x.filamento_id===id);
+ const sd=saidas.filter(x=>x.filamento_id===id);
+ const totalComprado=cp.reduce((a,x)=>a+(Number(x.quantidade)||0),0);
+ const totalSaido=sd.reduce((a,x)=>a+(Number(x.quantidade)||0),0);
+ const caixas=Math.max(0,totalComprado-totalSaido);
+ let valorMedio=0;
+ if(totalComprado>0){
+  const totalInvestido=cp.reduce((a,x)=>a+(Number(x.total)||0),0);
+  valorMedio=totalInvestido/totalComprado;
+ }
+ const r=await sb.from('filamentos').update({caixas:caixas,valor_medio:valorMedio}).eq('id',id);
+ if(r.error)throw r.error;
+}
 
 async function editCompra(id){
+ const r = await sb.from('compras').select('*').eq('id', id).single();
+ if(r.error){alert(r.error.message);return;}
+ const compra = r.data;
+ const f = await sb.from('filamentos').select('*').eq('id', compra.filamento_id).single();
+ if(f.error){alert(f.error.message);return;}
+ const filamento = f.data;
 
-  const r = await sb
-    .from('compras')
-    .select('*')
-    .eq('id', id)
-    .single();
+ const nome = prompt('Nome do filamento:', filamento.nome || '');
+ if(nome === null) return;
+ if(!nome.trim()){alert('O nome do filamento não pode ficar vazio.');return;}
+ const marca = prompt('Marca:', filamento.marca || '');
+ if(marca === null) return;
+ const tipo = prompt('Tipo (PLA, PLA Silk, PETG, ABS, TPU...):', filamento.tipo || 'PLA');
+ if(tipo === null) return;
+ const cor = prompt('Cor:', filamento.cor || '');
+ if(cor === null) return;
+ const barcode = prompt('Código de Barras:', filamento.codigo_barras || '');
+ if(barcode === null) return;
 
-  if(r.error){
-    alert(r.error.message);
-    return;
-  }
+ const quantidade = prompt('Quantidade de caixas:', compra.quantidade);
+ if(quantidade === null) return;
+ const precoSem = prompt('Preço sem IVA (€):', compra.preco_sem_iva);
+ if(precoSem === null) return;
+ const iva = prompt('IVA (%):', compra.iva);
+ if(iva === null) return;
+ const fatura = prompt('Número da factura:', compra.fatura || '');
+ if(fatura === null) return;
 
-  const compra = r.data;
+ const q = Number(quantidade), sem = Number(precoSem), taxa = Number(iva);
+ if(!Number.isInteger(q) || q <= 0){alert('A quantidade tem de ser um número inteiro maior que 0.');return;}
+ if(!Number.isFinite(sem) || sem < 0){alert('O preço sem IVA não é válido.');return;}
+ if(!Number.isFinite(taxa) || taxa < 0){alert('O IVA não é válido.');return;}
 
-  // =========================
-  // OBTER FILAMENTO
-  // =========================
+ const precoCom = sem * (1 + taxa / 100);
+ const totalSemIva = sem * q;
+ const total = precoCom * q;
 
-  const f = await sb
-    .from('filamentos')
-    .select('*')
-    .eq('id', compra.filamento_id)
-    .single();
+ const rf = await sb.from('filamentos').update({nome: nome.trim(), marca: marca.trim(), tipo: tipo.trim(), cor: cor.trim(), codigo_barras: barcode.trim()}).eq('id', compra.filamento_id);
+ if(rf.error){alert('Erro ao alterar o filamento:\n' + rf.error.message);return;}
 
-  if(f.error){
-    alert(f.error.message);
-    return;
-  }
+ const rc = await sb.from('compras').update({quantidade: q, preco_sem_iva: sem, iva: taxa, preco_com_iva: precoCom, total_sem_iva: totalSemIva, total: total, fatura: fatura.trim()}).eq('id', id);
+ if(rc.error){alert('Erro ao alterar a compra:\n' + rc.error.message);return;}
 
-  const filamento = f.data;
-
-  // =========================
-  // DADOS DO FILAMENTO
-  // =========================
-
-  const nome = prompt(
-    'Nome do filamento:',
-    filamento.nome || ''
-  );
-
-  if(nome === null) return;
-
-  if(!nome.trim()){
-    alert('O nome do filamento não pode ficar vazio.');
-    return;
-  }
-
-  const marca = prompt(
-    'Marca:',
-    filamento.marca || ''
-  );
-
-  if(marca === null) return;
-
-  const tipo = prompt(
-    'Tipo (PLA, PLA Silk, PETG, ABS, TPU...):',
-    filamento.tipo || 'PLA'
-  );
-
-  if(tipo === null) return;
-
-  const cor = prompt(
-    'Cor:',
-    filamento.cor || ''
-  );
-
-  if(cor === null) return;
-
-  // =========================
-  // DADOS DA COMPRA
-  // =========================
-
-  const quantidade = prompt(
-    'Quantidade de caixas:',
-    compra.quantidade
-  );
-
-  if(quantidade === null) return;
-
-  const precoSem = prompt(
-    'Preço sem IVA (€):',
-    compra.preco_sem_iva
-  );
-
-  if(precoSem === null) return;
-
-  const iva = prompt(
-    'IVA (%):',
-    compra.iva
-  );
-
-  if(iva === null) return;
-
-  const fatura = prompt(
-    'Número da factura:',
-    compra.fatura || ''
-  );
-
-  if(fatura === null) return;
-
-  // =========================
-  // VALIDAR
-  // =========================
-
-  const q = Number(quantidade);
-  const sem = Number(precoSem);
-  const taxa = Number(iva);
-
-  if(!Number.isInteger(q) || q <= 0){
-    alert('A quantidade tem de ser um número inteiro maior que 0.');
-    return;
-  }
-
-  if(!Number.isFinite(sem) || sem < 0){
-    alert('O preço sem IVA não é válido.');
-    return;
-  }
-
-  if(!Number.isFinite(taxa) || taxa < 0){
-    alert('O IVA não é válido.');
-    return;
-  }
-
-  // =========================
-  // CALCULAR PREÇOS
-  // =========================
-
-  const precoCom = sem * (1 + taxa / 100);
-
-  const totalSemIva = sem * q;
-
-  const total = precoCom * q;
-
-  // =========================
-  // ALTERAR FILAMENTO
-  // =========================
-
-  const rf = await sb
-    .from('filamentos')
-    .update({
-      nome: nome.trim(),
-      marca: marca.trim(),
-      tipo: tipo.trim(),
-      cor: cor.trim()
-    })
-    .eq('id', compra.filamento_id);
-
-  if(rf.error){
-
-    if(rf.error.code === '23505'){
-      alert(
-        'Já existe um filamento com esse nome.\n\n' +
-        'Escolha outro nome.'
-      );
-    }else{
-      alert(
-        'Erro ao alterar o filamento:\n' +
-        rf.error.message
-      );
-    }
-
-    return;
-  }
-
-  // =========================
-  // ALTERAR COMPRA
-  // =========================
-
-  const rc = await sb
-    .from('compras')
-    .update({
-      quantidade: q,
-      preco_sem_iva: sem,
-      iva: taxa,
-      preco_com_iva: precoCom,
-      total_sem_iva: totalSemIva,
-      total: total,
-      fatura: fatura.trim()
-    })
-    .eq('id', id);
-
-  if(rc.error){
-    alert(
-      'Erro ao alterar a compra:\n' +
-      rc.error.message
-    );
-    return;
-  }
-
-  // =========================
-  // RECALCULAR STOCK
-  // =========================
-
-  await recalcularFilamento(compra.filamento_id);
-
-  await render();
-
-  alert('Compra e filamento alterados com sucesso.');
+ await recalcularFilamento(compra.filamento_id);
+ await render();
+ alert('Compra e filamento alterados com sucesso.');
 }
+
 async function delCompra(id){
+ const {data:compra,error}=await sb.from('compras').select('*').eq('id',id).single();
+ if(error||!compra){alert('Compra não encontrada.');return;}
+ const {data:saidas,error:erroSaidas}=await sb.from('saidas').select('*').eq('filamento_id',compra.filamento_id);
+ if(erroSaidas){alert(erroSaidas.message);return;}
+ const {data:compras,error:erroCompras}=await sb.from('compras').select('*').eq('filamento_id',compra.filamento_id).neq('id',id);
+ if(erroCompras){alert(erroCompras.message);return;}
+ const totalComprasRestantes=(compras||[]).reduce((a,x)=>a+(Number(x.quantidade)||0),0);
+ const totalSaidas=(saidas||[]).reduce((a,x)=>a+(Number(x.quantidade)||0),0);
+ if(totalComprasRestantes<totalSaidas){alert('Não é possível apagar esta compra porque existem saídas que dependem destas caixas.');return;}
+ const confirmar=confirm('⚠️ APAGAR COMPRA\n\nFactura: '+(compra.fatura||'-')+'\nQuantidade: '+compra.quantidade+' caixa(s)\nTotal: '+euro(compra.total)+'\n\nTem a certeza que pretende apagar?');
+ if(!confirmar)return;
+ const r=await sb.from('compras').delete().eq('id',id);
+ if(r.error){alert(r.error.message);return;}
+ await recalcularFilamento(compra.filamento_id);
+ await render();
+ alert('Compra apagada e stock corrigido.');
+}
 
-  const {data:compra,error}=await sb
-    .from('compras')
-    .select('*')
-    .eq('id',id)
-    .single();
-
-  if(error||!compra){
-    alert('Compra não encontrada.');
-    return;
-  }
-
-  const {data:saidas,error:erroSaidas}=await sb
-    .from('saidas')
-    .select('*')
-    .eq('filamento_id',compra.filamento_id);
-
-  if(erroSaidas){
-    alert(erroSaidas.message);
-    return;
-  }
-
-  const {data:compras,error:erroCompras}=await sb
-    .from('compras')
-    .select('*')
-    .eq('filamento_id',compra.filamento_id)
-    .neq('id',id);
-
-  if(erroCompras){
-    alert(erroCompras.message);
-    return;
-  }
-
-  const totalComprasRestantes=(
-    compras||[]
-  ).reduce(
-    (a,x)=>a+(Number(x.quantidade)||0),
-    0
-  );
-
-  const totalSaidas=(
-    saidas||[]
-  ).reduce(
-    (a,x)=>a+(Number(x.quantidade)||0),
-    0
-  );
-
-  if(totalComprasRestantes<totalSaidas){
-
-    alert(
-      'Não é possível apagar esta compra porque existem saídas que dependem destas caixas.'
-    );
-
-    return;
-  }
-
-  const confirmar=confirm(
-    '⚠️ APAGAR COMPRA\n\n'+
-    'Factura: '+(compra.fatura||'-')+'\n'+
-    'Quantidade: '+compra.quantidade+' caixa(s)\n'+
-    'Total: '+euro(compra.total)+'\n\n'+
-    'Esta operação irá corrigir automaticamente o stock.\n\n'+
-    'Tem a certeza que pretende apagar?'
-  );
-
-  if(!confirmar)return;
-
-  const r=await sb
-    .from('compras')
-    .delete()
-    .eq('id',id);
-
-  if(r.error){
-    alert(r.error.message);
-    return;
-  }
-
-  await recalcularFilamento(compra.filamento_id);
-
-  await render();
-
-  alert('Compra apagada e stock corrigido.');
-}async function editPara(id){const q=prompt('Quantidade:');if(q===null)return;const sem=prompt('Preço sem IVA:');if(sem===null)return;const r=await sb.from('filamentos_para_comprar').update({quantidade:+q,preco_sem_iva:+sem}).eq('id',id);if(r.error)alert(r.error.message);else render()}
+async function editPara(id){const q=prompt('Quantidade:');if(q===null)return;const sem=prompt('Preço sem IVA:');if(sem===null)return;const r=await sb.from('filamentos_para_comprar').update({quantidade:+q,preco_sem_iva:+sem}).eq('id',id);if(r.error)alert(r.error.message);else render()}
 async function delPara(id){if(confirm('Apagar este item?')){const r=await sb.from('filamentos_para_comprar').delete().eq('id',id);if(r.error)alert(r.error.message);else render()}}
-async function render(){try{const s=await stock();const semStock=s.filter(x=>x.caixas===0);$('nCaixas').textContent=s.reduce((a,x)=>a+x.caixas,0);$('nTipos').textContent=s.length;;$('nInvestido').textContent=euro(s.reduce((a,x)=>a+x.caixas*x.valor_medio,0));const q=($('searchStock').value||'').toLowerCase();$('stockBody').innerHTML=s.filter(x=>(x.nome+' '+x.marca+' '+x.tipo+' '+x.cor).toLowerCase().includes(q)).map(x=>`<tr class="${x.caixas===0?'sem-stock':''}"><td>${x.foto?`<img class="thumb" src="${esc(x.foto)}">`:'-'}</td><td>${esc(x.nome)}</td><td>${esc(x.marca)}</td><td>${esc(x.tipo)}</td><td>${esc(x.cor)}</td><td>${x.caixas}</td><td>${euro(x.caixas*x.valor_medio)}</td></tr>`).join('');$('sFilamento').innerHTML=s.filter(x=>x.caixas>0).map(x=>`<option value="${x.id}">${esc(x.nome)} — ${x.caixas} caixas</option>`).join('');
-const compras=await rows('compras');const saidas=await rows('saidas');const vendas=saidas.filter(x=>x.tipo==='Venda').reduce((a,x)=>a+x.total,0);$('nVendas').textContent=euro(vendas);const fs=Object.fromEntries(s.map(x=>[x.id,x]));
-const cp=await rows('filamentos_para_comprar');$('comprarBody').innerHTML=cp.map(x=>`<tr><td>${x.foto?`<img class="thumb" src="${esc(x.foto)}">`:'-'}</td><td>${esc(x.nome)}<br><small>${esc(x.marca||'')}</small></td><td>${esc(x.tipo)}</td><td>${x.quantidade}</td><td>${euro(x.preco_sem_iva)}</td><td>${euro(x.preco_sem_iva*(1+(x.iva||0)/100))}</td><td>${esc(x.prioridade)}</td><td><button class="secondary" onclick="editPara('${x.id}')">✏️ Editar</button> <button class="danger" onclick="delPara('${x.id}')">Apagar</button></td></tr>`).join('');
-const h=[...compras.map(x=>({...x,_tipo:'Compra',_data:x.data_compra,_q:x.quantidade,_total:x.total,_fat:x.fatura,_nome:fs[x.filamento_id]?.nome||'-'})),...saidas.map(x=>({...x,_tipo:'Saída - '+x.tipo,_data:x.data_saida,_q:x.quantidade,_total:x.total,_fat:'',_nome:fs[x.filamento_id]?.nome||'-'}))].sort((a,b)=>String(b._data).localeCompare(String(a._data)));
 
-const hq=($('searchHist').value||'').toLowerCase();
+async function render(){
+ try{
+  const s=await stock();
+  $('nCaixas').textContent=s.reduce((a,x)=>a+x.caixas,0);
+  $('nTipos').textContent=s.length;
+  $('nInvestido').textContent=euro(s.reduce((a,x)=>a+x.caixas*x.valor_medio,0));
+  
+  const q=($('searchStock').value||'').toLowerCase();
+  $('stockBody').innerHTML=s.filter(x=>(x.nome+' '+x.marca+' '+x.tipo+' '+x.cor+' '+(x.codigo_barras||'')).toLowerCase().includes(q)).map(x=>`<tr class="${x.caixas===0?'sem-stock':''}"><td>${x.foto?`<img class="thumb" src="${esc(x.foto)}">`:'-'}</td><td>${esc(x.codigo_barras||'-')}</td><td>${esc(x.nome)}</td><td>${esc(x.marca)}</td><td>${esc(x.tipo)}</td><td>${esc(x.cor)}</td><td>${x.caixas}</td><td>${euro(x.caixas*x.valor_medio)}</td></tr>`).join('');
+  
+  $('sFilamento').innerHTML=s.filter(x=>x.caixas>0).map(x=>`<option value="${x.id}">${esc(x.nome)} — ${x.caixas} caixas</option>`).join('');
 
-$('histBody').innerHTML=h
-.filter(x=>(x._nome+' '+x._tipo+' '+x._fat+' '+x._data).toLowerCase().includes(hq))
-.map(x=>`<tr>
-<td>${esc(x._data)}</td>
-<td>${esc(x._tipo)}</td>
-<td>${esc(x._nome)}</td>
-<td>${x._q}</td>
-<td>${euro(x._total)}</td>
-<td>${esc(x._fat||'-')}</td>
-<td>${x._tipo==='Compra'
-?`<button class="secondary" onclick="editCompra('${x.id}')">✏️ Editar</button>
-<button class="danger" onclick="delCompra('${x.id}')">🗑️ Apagar</button>`
-:'-'}</td>
-</tr>`).join('');
+  const compras=await rows('compras');
+  const saidas=await rows('saidas');
+  const vendas=saidas.filter(x=>x.tipo==='Venda').reduce((a,x)=>a+x.total,0);
+  $('nVendas').textContent=euro(vendas);
+  
+  const fs=Object.fromEntries(s.map(x=>[x.id,x]));
+  const cp=await rows('filamentos_para_comprar');
+  $('comprarBody').innerHTML=cp.map(x=>`<tr><td>${x.foto?`<img class="thumb" src="${esc(x.foto)}">`:'-'}</td><td>${esc(x.nome)}<br><small>${esc(x.marca||'')}</small></td><td>${esc(x.tipo)}</td><td>${x.quantidade}</td><td>${euro(x.preco_sem_iva)}</td><td>${euro(x.preco_sem_iva*(1+(x.iva||0)/100))}</td><td>${esc(x.prioridade)}</td><td><button class="secondary" onclick="editPara('${x.id}')">✏️ Editar</button> <button class="danger" onclick="delPara('${x.id}')">Apagar</button></td></tr>`).join('');
+  
+  const h=[...compras.map(x=>({...x,_tipo:'Compra',_data:x.data_compra,_q:x.quantidade,_total:x.total,_fat:x.fatura,_nome:fs[x.filamento_id]?.nome||'-'})),...saidas.map(x=>({...x,_tipo:'Saída - '+x.tipo,_data:x.data_saida,_q:x.quantidade,_total:x.total,_fat:'',_nome:fs[x.filamento_id]?.nome||'-'}))].sort((a,b)=>String(b._data).localeCompare(String(a._data)));
 
-}catch(e){
-  console.error(e);
+  const hq=($('searchHist').value||'').toLowerCase();
+  $('histBody').innerHTML=h.filter(x=>(x._nome+' '+x._tipo+' '+x._fat+' '+x._data).toLowerCase().includes(hq)).map(x=>`<tr><td>${esc(x._data)}</td><td>${esc(x._tipo)}</td><td>${esc(x._nome)}</td><td>${x._q}</td><td>${euro(x._total)}</td><td>${esc(x._fat||'-')}</td><td>${x._tipo==='Compra'?`<button class="secondary" onclick="editCompra('${x.id}')">✏️ Editar</button> <button class="danger" onclick="delCompra('${x.id}')">🗑️ Apagar</button>`:'-'}</td></tr>`).join('');
+
+ }catch(e){console.error(e);}
 }
-}
-$('btnLogin').onclick=login;$('btnReg').onclick=register;$('btnLogout').onclick=logout;$('formCompra').onsubmit=saveCompra;$('formSaida').onsubmit=saveSaida;$('formParaComprar').onsubmit=savePara;
-['cSem','cIva'].forEach(i=>$(i).addEventListener('input',calcCompra));['pSem','pIva'].forEach(i=>$(i).addEventListener('input',calcPara));$('cNome').oninput=()=>updateSug('c','cNome','sugCompra');$('pNome').oninput=()=>updateSug('p','pNome','sugComprar');$('searchStock').oninput=render;$('searchHist').oninput=render;$('sTipo').onchange=()=>$('vendaBox').classList.toggle('hidden',$('sTipo').value!=='Venda');
+
+// Event Listeners
+$('btnLogin').onclick=login;
+$('btnReg').onclick=register;
+$('btnLogout').onclick=logout;
+$('formCompra').onsubmit=saveCompra;
+$('formSaida').onsubmit=saveSaida;
+$('formParaComprar').onsubmit=savePara;
+
+['cSem','cIva'].forEach(i=>$(i).addEventListener('input',calcCompra));
+['pSem','pIva'].forEach(i=>$(i).addEventListener('input',calcPara));
+$('cNome').oninput=()=>updateSug('c','cNome','sugCompra');
+$('pNome').oninput=()=>updateSug('p','pNome','sugComprar');
+$('searchStock').oninput=render;
+$('searchHist').oninput=render;
+$('sTipo').onchange=()=>$('vendaBox').classList.toggle('hidden',$('sTipo').value!=='Venda');
+
+// Eventos de leitura de códigos de barras (pistola envia "Enter" no fim)
+$('cBarcode').onchange=checkBarcodeCompra;
+$('sBarcode').onchange=checkBarcodeSaida;
+
 document.querySelectorAll('#nav button[data-view]').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(b.dataset.view).classList.add('active');render()});
 init();
 </script>
